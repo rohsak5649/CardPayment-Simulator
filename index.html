@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0a0e1a;--bg2:#0f1525;--bgc:#131929;--bgc2:#161e30;
+  --bd:#1e2d4a;--bdb:#2a3f60;
+  --green:#22c55e;--green2:#16a34a;
+  --blue:#3b82f6;--yellow:#eab308;--red:#ef4444;--orange:#f97316;
+  --t1:#e2e8f0;--t2:#94a3b8;--t3:#475569;
+  --ns:60px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{max-width:1400px;margin:0 auto;padding:0 18px;position:relative;z-index:1;}
+
+header{padding:20px 0 6px;text-align:center;position:relative;}
+.hrow{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:3px;}
+header h1{font-size:24px;font-weight:700;letter-spacing:-.5px;background:linear-gradient(135deg,#e2e8f0,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+header p.sub{color:var(--t2);font-size:12px;font-weight:300;margin-bottom:2px;}
+header p.credit{color:var(--t3);font-size:11px;font-style:italic;}
+header p.credit span{color:#60a5fa;font-style:normal;font-weight:500;}
+.btn-reset{position:absolute;top:20px;right:0;display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bgc2);border:1px solid var(--bd);border-radius:8px;color:var(--t2);font-family:'Sora',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+.btn-reset:hover{background:var(--bd);color:var(--t1);}
+
+.ipanel{background:var(--bgc);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg label{font-size:10px;font-weight:500;color:var(--t2);letter-spacing:.4px;text-transform:uppercase;}
+.pan-wrap{position:relative;display:flex;align-items:center;}
+.pan-in{width:210px;padding:8px 36px 8px 12px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1px;outline:none;transition:border-color .2s;}
+.pan-in:focus{border-color:var(--blue);}
+.pan-ic{position:absolute;right:10px;font-size:15px;pointer-events:none;}
+select{padding:8px 28px 8px 11px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-family:'Sora',sans-serif;font-size:12px;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;transition:border-color .2s;}
+select:focus{border-color:var(--blue);}
+.sel-chan{width:130px;}
+.sel-scen{width:190px;}
+.sel-tout{width:200px;}
+.tout-grp{display:flex;flex-direction:column;gap:6px;transition:opacity .3s;}
+.tout-grp.hidden{opacity:.3;pointer-events:none;}
+.dnet{display:flex;align-items:center;gap:8px;padding:8px 13px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;min-width:140px;height:36px;}
+.ndot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pdot 2s infinite;}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.spd-grp{flex:1;min-width:140px;}
+.spd-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-top:3px;}
+.spdr{width:100%;height:4px;-webkit-appearance:none;background:linear-gradient(to right,var(--blue) var(--fill,50%),var(--bd) var(--fill,50%));border-radius:4px;outline:none;cursor:pointer;margin-top:10px;}
+.spdr::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;}
+.btn-start{display:flex;align-items:center;gap:7px;padding:9px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;margin-left:auto;box-shadow:0 3px 12px rgba(34,197,94,.3);}
+.btn-start:hover{background:var(--green2);}
+.btn-start.running{background:#dc2626;box-shadow:0 3px 12px rgba(220,38,38,.3);}
+
+/* FLOW CANVAS */
+.fcanvas{background:var(--bgc);border:1px solid var(--bd);border-radius:14px;padding:24px 10px 30px;margin-bottom:18px;position:relative;overflow:hidden;}
+.fcanvas::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,rgba(59,130,246,.05) 0%,transparent 70%);pointer-events:none;}
+.flow-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.nodes-row{display:flex;align-items:flex-start;justify-content:space-around;padding:0 4px;position:relative;z-index:2;}
+.nslot{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.nlabel{font-size:10px;font-weight:600;color:var(--t2);margin-bottom:9px;letter-spacing:.1px;text-align:center;white-space:nowrap;}
+.nbox{width:var(--ns);height:var(--ns);background:var(--bgc2);border:1.5px solid var(--bd);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:20px;position:relative;transition:border-color .3s,box-shadow .3s,background .3s;}
+.nbox .nsub{font-size:8px;font-family:'JetBrains Mono',monospace;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;}
+.ndotb{position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--bdb);border:2px solid var(--bgc);transition:all .3s;z-index:3;}
+.sbadge{margin-top:16px;padding:4px 9px;border-radius:6px;font-size:9px;font-weight:600;display:flex;align-items:center;gap:4px;border:1.5px dashed var(--bd);color:var(--t3);background:transparent;white-space:nowrap;min-width:76px;justify-content:center;transition:all .4s;opacity:0;transform:translateY(4px);}
+.sbadge.show{opacity:1;transform:translateY(0);}
+.sbadge.approved{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
+.sbadge.processing{border-color:var(--blue);color:var(--blue);background:rgba(59,130,246,.08);animation:blbg .8s infinite;}
+.sbadge.timeout{border-color:var(--yellow);color:var(--yellow);background:rgba(234,179,8,.1);}
+.sbadge.reversal{border-color:var(--orange);color:var(--orange);background:rgba(249,115,22,.1);}
+.sbadge.declined{border-color:var(--red);color:var(--red);background:rgba(239,68,68,.1);}
+@keyframes blbg{0%,100%{opacity:1;}50%{opacity:.4;}}
+.nbox.active{border-color:var(--blue);background:rgba(59,130,246,.1);box-shadow:0 0 16px rgba(59,130,246,.4);}
+.nbox.done{border-color:var(--green);background:rgba(34,197,94,.06);box-shadow:0 0 14px rgba(34,197,94,.35);}
+.nbox.timeout{border-color:var(--yellow);background:rgba(234,179,8,.08);box-shadow:0 0 16px rgba(234,179,8,.5);}
+.nbox.reversal{border-color:var(--orange);background:rgba(249,115,22,.08);box-shadow:0 0 14px rgba(249,115,22,.3);}
+.nbox.declined{border-color:var(--red);background:rgba(239,68,68,.08);box-shadow:0 0 12px rgba(239,68,68,.3);}
+.ndotb.active{background:var(--blue);box-shadow:0 0 6px var(--blue);}
+.ndotb.done{background:var(--green);box-shadow:0 0 6px var(--green);}
+.ndotb.timeout{background:var(--yellow);box-shadow:0 0 7px var(--yellow);}
+.ndotb.reversal{background:var(--orange);box-shadow:0 0 6px var(--orange);}
+.ndotb.declined{background:var(--red);box-shadow:0 0 6px var(--red);}
+
+/* SVG path classes */
+.path-req{fill:none;stroke:var(--green);stroke-width:2;stroke-dasharray:6 4;opacity:.28;}
+.path-res{fill:none;stroke-width:2;opacity:0;transition:opacity .5s;}
+.path-res.vis{opacity:.6;}
+.path-rev{fill:none;stroke:var(--orange);stroke-width:2.5;stroke-dasharray:5 3;opacity:0;transition:opacity .5s;}
+.path-rev.vis{opacity:.6;}
+.path-dec{fill:none;stroke:var(--red);stroke-width:2.5;stroke-dasharray:5 3;opacity:0;transition:opacity .5s;}
+.path-dec.vis{opacity:.6;}
+
+.prog-track{height:3px;background:var(--bd);border-radius:2px;margin:12px 18px 0;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;width:0%;transition:width .4s ease;}
+.prog-fill.req-phase{background:linear-gradient(90deg,var(--blue),var(--green));}
+.prog-fill.res-phase{background:linear-gradient(90deg,var(--green),var(--blue));}
+.prog-fill.rev-phase{background:linear-gradient(90deg,var(--orange),var(--red));}
+
+/* Phase label inside canvas */
+.phase-label{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;letter-spacing:.5px;padding:3px 12px;border-radius:12px;opacity:0;transition:opacity .4s;white-space:nowrap;}
+.phase-label.req{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+.phase-label.res{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.phase-label.tout{background:rgba(234,179,8,.15);color:var(--yellow);border:1px solid rgba(234,179,8,.3);}
+.phase-label.show{opacity:1;}
+
+.tcount{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:700;color:var(--yellow);font-family:'JetBrains Mono',monospace;opacity:0;transition:opacity .3s;white-space:nowrap;}
+.tcount.show{opacity:1;}
+
+/* BOTTOM */
+.bgrid{display:grid;grid-template-columns:1fr 1fr 260px;gap:14px;margin-bottom:20px;}
+.panel{background:var(--bgc);border:1px solid var(--bd);border-radius:14px;overflow:hidden;}
+.phdr{padding:12px 16px 10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px;}
+.phdr h3{font-size:12px;font-weight:600;}
+.dlive{width:6px;height:6px;border-radius:50%;background:var(--green);animation:plive 1.4s infinite;}
+@keyframes plive{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6);}50%{box-shadow:0 0 0 4px rgba(34,197,94,0);}}
+.log-body{padding:8px 4px;height:230px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;}
+.log-body::-webkit-scrollbar{width:3px;}
+.log-body::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px;}
+.lentry{display:flex;align-items:flex-start;gap:7px;padding:3px 12px;line-height:1.5;opacity:0;transform:translateX(-5px);transition:opacity .3s,transform .3s;}
+.lentry.show{opacity:1;transform:translateX(0);}
+.ltime{color:var(--t3);flex-shrink:0;font-size:9.5px;margin-top:1px;}
+.ldot{width:4px;height:4px;border-radius:1px;background:var(--bdb);flex-shrink:0;margin-top:4px;}
+.lmsg{color:var(--t2);}
+.lmsg.ok{color:var(--green);font-weight:500;}
+.lmsg.done{color:var(--yellow);font-weight:600;}
+.lmsg.warn{color:var(--yellow);}
+.lmsg.err{color:var(--red);}
+.lmsg.rev{color:var(--orange);}
+.lmsg.info{color:var(--blue);}
+.dbody{padding:12px 16px;display:flex;flex-direction:column;gap:7px;}
+.drow{display:flex;align-items:flex-start;gap:5px;font-size:11px;}
+.dkey{color:var(--t2);min-width:112px;flex-shrink:0;}
+.dsep{color:var(--t3);}
+.dval{color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:10px;word-break:break-all;}
+.dval.ok{background:rgba(34,197,94,.15);color:var(--green);padding:2px 8px;border-radius:5px;font-family:'Sora',sans-serif;font-size:10px;font-weight:600;}
+.dval.pend{background:rgba(234,179,8,.12);color:var(--yellow);padding:2px 8px;border-radius:5px;font-family:'Sora',sans-serif;font-size:10px;font-weight:600;}
+.dval.dec{background:rgba(239,68,68,.12);color:var(--red);padding:2px 8px;border-radius:5px;font-family:'Sora',sans-serif;font-size:10px;font-weight:600;}
+.side-panel{display:flex;flex-direction:column;}
+.leg-body{padding:11px 14px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:8px;}
+.leg-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);}
+.leg-line{width:26px;height:2px;border-radius:1px;flex-shrink:0;}
+.leg-line.req{background:transparent;border-top:2px dashed var(--green);}
+.leg-line.res{background:linear-gradient(90deg,var(--green),var(--blue));}
+.leg-line.rev{background:transparent;border-top:2px dashed var(--orange);}
+.leg-line.dec{background:transparent;border-top:2px dashed var(--red);}
+.leg-ic{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;}
+.leg-ic.g{background:rgba(34,197,94,.2);border:1.5px solid var(--green);color:var(--green);}
+.leg-ic.y{background:rgba(234,179,8,.2);border:1.5px solid var(--yellow);color:var(--yellow);}
+.leg-ic.o{background:rgba(249,115,22,.2);border:1.5px solid var(--orange);color:var(--orange);}
+.leg-ic.r{background:rgba(239,68,68,.2);border:1.5px solid var(--red);color:var(--red);}
+.spdbody{padding:12px 14px;}
+.spdrow{display:flex;align-items:center;gap:10px;}
+.spdsm{flex:1;height:4px;-webkit-appearance:none;background:linear-gradient(to right,var(--blue) var(--fill,50%),var(--bd) var(--fill,50%));border-radius:4px;outline:none;cursor:pointer;}
+.spdsm::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--blue);cursor:pointer;}
+.footer-credit{text-align:center;padding:10px 0 18px;font-size:11px;color:var(--t3);font-style:italic;border-top:1px solid var(--bd);}
+.footer-credit span{color:#60a5fa;font-style:normal;font-weight:500;}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="wrap">
+
+<header>
+  <div class="hrow"><span style="font-size:22px">💳</span><h1>Payment Network Simulator</h1></div>
+  <p class="sub">Full transaction flow — request to CBS, response back to ATM, with configurable response-path timeout &amp; reversal</p>
+  <button class="btn-reset" id="btnReset">⟳ Reset</button>
+</header>
+
+<div class="ipanel">
+  <div class="fg">
+    <label>PAN Number</label>
+    <div class="pan-wrap">
+      <input type="text" class="pan-in" id="panIn" maxlength="19" value="4532015112830366">
+      <span class="pan-ic">💳</span>
+    </div>
+  </div>
+  <div class="fg">
+    <label>Channel</label>
+    <select class="sel-chan" id="chanSel">
+      <option value="POS">POS</option>
+      <option value="ATM">ATM</option>
+      <option value="ECOM">E-Commerce</option>
+      <option value="MPOS">mPOS</option>
+    </select>
+  </div>
+  <div class="fg">
+    <label>Detected Network</label>
+    <div class="dnet" id="dnet">
+      <div id="nlogo"></div>
+      <div class="ndot" id="ndot" style="display:none"></div>
+    </div>
+  </div>
+  <div class="fg">
+    <label>Scenario</label>
+    <select class="sel-scen" id="scenSel">
+      <option value="normal">✅ Normal Approval</option>
+      <option value="timeout">⏰ Response Timeout + Reversal</option>
+    </select>
+  </div>
+  <div class="fg tout-grp hidden" id="toutGrp">
+    <label>Timeout At (Response Path)</label>
+    <select class="sel-tout" id="toutSel">
+      <option value="4">Issuer Switch → Network</option>
+      <option value="3" selected>Network → Acq. Switch</option>
+      <option value="2">Acq. Switch → Acquirer</option>
+      <option value="1">Acquirer → ATM/POS</option>
+    </select>
+  </div>
+  <div class="fg spd-grp">
+    <label>Simulation Speed</label>
+    <input type="range" class="spdr" id="spdr" min="1" max="10" value="5">
+    <div class="spd-labels"><span>Slow</span><span>Fast</span></div>
+  </div>
+  <button class="btn-start" id="btnStart">
+    <span id="btnIco">▶</span>
+    <span id="btnLbl">Start Simulation</span>
+  </button>
+</div>
+
+<!-- FLOW CANVAS -->
+<div class="fcanvas" id="fcanvas">
+  <svg class="flow-svg" id="flowSvg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gres" x1="100%" y1="0%" x2="0%" y2="0%">
+        <stop offset="0%" style="stop-color:#22c55e"/>
+        <stop offset="100%" style="stop-color:#3b82f6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <div class="nodes-row" id="nodesRow">
+    <div class="nslot">
+      <div class="nlabel">ATM / POS</div>
+      <div class="nbox" id="node-0"><span>🏧</span><span class="nsub" id="chanLbl">ATM</span></div>
+      <div class="ndotb" id="dot-0"></div>
+    </div>
+    <div class="nslot">
+      <div class="nlabel">Acquirer</div>
+      <div class="nbox" id="node-1"><span>🏦</span></div>
+      <div class="ndotb" id="dot-1"></div>
+      <div class="sbadge" id="badge-1">⏳ Waiting</div>
+    </div>
+    <div class="nslot">
+      <div class="nlabel">Acquirer Switch</div>
+      <div class="nbox" id="node-2"><span>⚡</span></div>
+      <div class="ndotb" id="dot-2"></div>
+      <div class="sbadge" id="badge-2">⏳ Waiting</div>
+    </div>
+    <div class="nslot">
+      <div class="nlabel">Network</div>
+      <div class="nbox" id="node-3"><span>🌐</span></div>
+      <div class="ndotb" id="dot-3"></div>
+      <div class="sbadge" id="badge-3">⏳ Waiting</div>
+    </div>
+    <div class="nslot">
+      <div class="nlabel">Issuer Switch</div>
+      <div class="nbox" id="node-4"><span>⚡</span></div>
+      <div class="ndotb" id="dot-4"></div>
+      <div class="sbadge" id="badge-4">⏳ Waiting</div>
+    </div>
+    <div class="nslot">
+      <div class="nlabel">Issuer Bank</div>
+      <div class="nbox" id="node-5"><span>🏛️</span></div>
+      <div class="ndotb" id="dot-5"></div>
+      <div class="sbadge" id="badge-5">⏳ Waiting</div>
+    </div>
+    <div class="nslot">
+      <div class="nlabel">CBS</div>
+      <div class="nbox" id="node-6"><span>🗄️</span></div>
+      <div class="ndotb" id="dot-6"></div>
+      <div class="sbadge" id="badge-6">⏳ Waiting</div>
+    </div>
+  </div>
+  <div class="tcount" id="tcount"></div>
+  <div class="phase-label" id="phaseLabel"></div>
+  <div class="prog-track"><div class="prog-fill req-phase" id="progFill"></div></div>
+</div>
+
+<!-- BOTTOM GRID -->
+<div class="bgrid">
+  <div class="panel">
+    <div class="phdr"><div class="dlive" id="dlive" style="display:none"></div><h3>Live Transaction Log</h3></div>
+    <div class="log-body" id="logBody"></div>
+  </div>
+  <div class="panel">
+    <div class="phdr"><h3>Transaction Details</h3></div>
+    <div class="dbody">
+      <div class="drow"><span class="dkey">PAN</span><span class="dsep">:</span><span class="dval" id="dPan">—</span></div>
+      <div class="drow"><span class="dkey">Network</span><span class="dsep">:</span><span class="dval" id="dNet">—</span></div>
+      <div class="drow"><span class="dkey">Channel</span><span class="dsep">:</span><span class="dval" id="dChan">—</span></div>
+      <div class="drow"><span class="dkey">Scenario</span><span class="dsep">:</span><span class="dval" id="dScen">—</span></div>
+      <div class="drow"><span class="dkey">Timeout At</span><span class="dsep">:</span><span class="dval" id="dTout">—</span></div>
+      <div class="drow"><span class="dkey">Transaction ID</span><span class="dsep">:</span><span class="dval" id="dTxn">—</span></div>
+      <div class="drow"><span class="dkey">Reversal ID</span><span class="dsep">:</span><span class="dval" id="dRev">—</span></div>
+      <div class="drow"><span class="dkey">Status</span><span class="dsep">:</span><span class="dval" id="dStat">—</span></div>
+      <div class="drow"><span class="dkey">Start Time</span><span class="dsep">:</span><span class="dval" id="dStart">—</span></div>
+      <div class="drow"><span class="dkey">End Time</span><span class="dsep">:</span><span class="dval" id="dEnd">—</span></div>
+      <div class="drow"><span class="dkey">Total Time</span><span class="dsep">:</span><span class="dval" id="dTotal">—</span></div>
+    </div>
+  </div>
+  <div class="side-panel panel">
+    <div class="phdr"><h3>Legend</h3></div>
+    <div class="leg-body">
+      <div class="leg-item"><div class="leg-line req"></div><span>Request (ATM → CBS)</span></div>
+      <div class="leg-item"><div class="leg-line res"></div><span>Response (CBS → ATM)</span></div>
+      <div class="leg-item"><div class="leg-line rev"></div><span>Reversal (→ CBS side)</span></div>
+      <div class="leg-item"><div class="leg-line dec"></div><span>Decline (→ ATM side)</span></div>
+      <div class="leg-item"><div class="leg-ic g">✓</div><span>Approved</span></div>
+      <div class="leg-item"><div class="leg-ic y">⏰</div><span>Timeout node</span></div>
+      <div class="leg-item"><div class="leg-ic o">↩</div><span>Reversal hop</span></div>
+      <div class="leg-item"><div class="leg-ic r">✗</div><span>Declined</span></div>
+    </div>
+    <div class="phdr" style="border-top:1px solid var(--bd);border-bottom:none;padding-bottom:0"><h3>Speed</h3></div>
+    <div class="spdbody">
+      <div class="spdrow">
+        <span style="font-size:14px">🐢</span>
+        <input type="range" class="spdsm" id="spdr2" min="1" max="10" value="5">
+        <span style="font-size:14px">🐇</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-credit">Payment Network Simulator · Developed by <span>Mr. Rohan Avinash Sakre</span> · Software Developer at Euronet</div>
+</div>
+
+<script>
+// ── BIN DETECTION ─────────────────────────────────────────────
+const BINS=[{p:/^4/,n:'Visa'},{p:/^5[1-5]/,n:'Mastercard'},{p:/^2[2-7]/,n:'Mastercard'},{p:/^3[47]/,n:'Amex'},{p:/^6[0-9]/,n:'RuPay'},{p:/^35/,n:'JCB'}];
+function detectNet(pan){const c=pan.replace(/\s/g,'');for(const b of BINS)if(b.p.test(c))return b;return null;}
+function logoHTML(net){
+  if(!net)return '<span style="color:var(--t3);font-size:11px">—</span>';
+  switch(net.n){
+    case 'Visa':return '<span style="font-style:italic;font-weight:900;font-size:13px"><span style="color:#1a56db">VI</span><span style="color:#fff">SA</span></span>';
+    case 'Mastercard':return '<div style="display:flex;align-items:center"><div style="width:15px;height:15px;border-radius:50%;background:#eb001b"></div><div style="width:15px;height:15px;border-radius:50%;background:#f79e1b;margin-left:-6px;opacity:.9"></div></div>';
+    case 'Amex':return '<span style="color:#007bc1;font-size:9px;font-weight:700;border:1.5px solid #007bc1;padding:1px 4px;border-radius:3px">AMEX</span>';
+    case 'RuPay':return '<span style="color:#f97316;font-size:10px;font-weight:700">RuPay</span>';
+    case 'JCB':return '<span style="color:#009f6b;font-size:10px;font-weight:700">JCB</span>';
+    default:return '<span style="color:var(--t3);font-size:10px">—</span>';
+  }
+}
+
+// Node names for display
+// Indices: 0=ATM/POS, 1=Acquirer, 2=AcqSwitch, 3=Network, 4=IssuerSwitch, 5=IssuerBank, 6=CBS
+const NNAMES=['ATM/POS','Acquirer','Acq. Switch','Network','Issuer Switch','Issuer Bank','CBS'];
+
+// toutSel value = the LEFT node index of the segment where timeout occurs on response path
+// Response path goes: 6→5→4→3→2→1→0
+// segments on response: seg5(6→5), seg4(5→4), seg3(4→3), seg2(3→2), seg1(2→1), seg0(1→0)
+// toutSel value = left node index of that segment
+// e.g. value=4 means segment between node4 and node3 (Issuer Switch side, packet going left)
+// value=3 means segment between node3 and node2 (Network side)
+// value=2 means segment between node2 and node1 (AcqSwitch side)
+// value=1 means segment between node1 and node0 (Acquirer side)
+const TOUT_LABELS={4:'Issuer Switch → Network',3:'Network → Acq. Switch',2:'Acq. Switch → Acquirer',1:'Acquirer → ATM/POS'};
+
+// ── STATE ──────────────────────────────────────────────────────
+let running=false,tmr=null,startTime=null,curNet=null;
+// SVG path arrays indexed by segment (0=between node0&1, 1=between node1&2 ... 5=between node5&6)
+let paths=[]; // {d, reqEl, resEl, revEl, decEl, fwdPkt, resPkt, revPkt, decPkt}
+
+// ── REFS ───────────────────────────────────────────────────────
+const panIn=document.getElementById('panIn');
+const chanSel=document.getElementById('chanSel');
+const scenSel=document.getElementById('scenSel');
+const toutSel=document.getElementById('toutSel');
+const toutGrp=document.getElementById('toutGrp');
+const nlogoEl=document.getElementById('nlogo');
+const ndotEl=document.getElementById('ndot');
+const spdr=document.getElementById('spdr');
+const spdr2=document.getElementById('spdr2');
+const btnStart=document.getElementById('btnStart');
+const btnLbl=document.getElementById('btnLbl');
+const btnIco=document.getElementById('btnIco');
+const btnReset=document.getElementById('btnReset');
+const logBody=document.getElementById('logBody');
+const progFill=document.getElementById('progFill');
+const dlive=document.getElementById('dlive');
+const chanLbl=document.getElementById('chanLbl');
+const tcountEl=document.getElementById('tcount');
+const phaseEl=document.getElementById('phaseLabel');
+
+scenSel.addEventListener('change',()=>{toutGrp.classList.toggle('hidden',scenSel.value!=='timeout');});
+
+function fmtPAN(v){return v.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim();}
+panIn.addEventListener('input',()=>{let r=panIn.value.replace(/\s/g,'');if(r.length>16)r=r.slice(0,16);panIn.value=fmtPAN(r);updateNet();});
+function updateNet(){const r=panIn.value.replace(/\s/g,'');curNet=detectNet(r);nlogoEl.innerHTML=logoHTML(curNet);ndotEl.style.display=curNet?'block':'none';}
+updateNet();
+
+function getDelay(){return Math.round(2000-(parseInt(spdr.value)-1)*188);}
+function updFill(s){const p=((s.value-s.min)/(s.max-s.min))*100;s.style.setProperty('--fill',p+'%');}
+spdr.addEventListener('input',()=>{spdr2.value=spdr.value;updFill(spdr);updFill(spdr2);});
+spdr2.addEventListener('input',()=>{spdr.value=spdr2.value;updFill(spdr);updFill(spdr2);});
+updFill(spdr);updFill(spdr2);
+chanSel.addEventListener('change',()=>{const m={POS:'POS',ATM:'ATM',ECOM:'E-COM',MPOS:'mPOS'};chanLbl.textContent=m[chanSel.value]||chanSel.value;});
+
+// ── BUILD SVG PATHS ────────────────────────────────────────────
+function buildPaths(){
+  const svg=document.getElementById('flowSvg');
+  svg.querySelectorAll('.dp').forEach(e=>e.remove());
+  paths=[];
+  const boxes=document.querySelectorAll('.nbox');
+  const cr=document.getElementById('fcanvas').getBoundingClientRect();
+  const cx=[];
+  boxes.forEach(b=>{const r=b.getBoundingClientRect();cx.push({x:r.left-cr.left+r.width/2,y:r.top-cr.top+r.height/2});});
+  for(let i=0;i<cx.length-1;i++){
+    const c1=cx[i],c2=cx[i+1];
+    const mx=(c1.x+c2.x)/2,my=Math.min(c1.y,c2.y)-26;
+    const d=`M${c1.x} ${c1.y} Q${mx} ${my} ${c2.x} ${c2.y}`;
+    const reqEl=mkPath(d,'path-req');svg.appendChild(reqEl);
+    const resEl=mkPath(d,'path-res');resEl.style.stroke='url(#gres)';resEl.id=`res-${i}`;svg.appendChild(resEl);
+    const revEl=mkPath(d,'path-rev');revEl.id=`rev-${i}`;svg.appendChild(revEl);
+    const decEl=mkPath(d,'path-dec');decEl.id=`dec-${i}`;svg.appendChild(decEl);
+    const fwdPkt=mkCircle('#22c55e');fwdPkt.id=`fp-${i}`;svg.appendChild(fwdPkt);
+    const resPkt=mkCircle('#3b82f6');resPkt.id=`rp-${i}`;svg.appendChild(resPkt);
+    const revPkt=mkCircle('#f97316');revPkt.id=`rvp-${i}`;svg.appendChild(revPkt);
+    const decPkt=mkCircle('#ef4444');decPkt.id=`dp2-${i}`;svg.appendChild(decPkt);
+    paths.push({d,reqEl,resEl,revEl,decEl,fwdPkt,resPkt,revPkt,decPkt});
+  }
+}
+function mkPath(d,cls){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);p.setAttribute('class',cls+' dp');p.setAttribute('fill','none');return p;}
+function mkCircle(fill){const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('r','5');c.setAttribute('fill',fill);c.setAttribute('class','dp');c.style.filter=`drop-shadow(0 0 4px ${fill})`;c.style.opacity='0';return c;}
+
+// Animate packet along segment seg, fwd=left→right, rev=right→left
+function animPkt(pkt,seg,dur,dir){
+  return new Promise(res=>{
+    const pe=paths[seg].reqEl; // use req path geometry for all packets
+    const len=pe.getTotalLength();
+    const steps=55,interval=dur/steps;
+    let step=0;pkt.style.opacity='1';
+    const t=setInterval(()=>{
+      if(!running&&step>0){clearInterval(t);pkt.style.opacity='0';res();return;}
+      const frac=dir==='fwd'?(step/steps):(1-step/steps);
+      const pt=pe.getPointAtLength(frac*len);
+      pkt.setAttribute('cx',pt.x);pkt.setAttribute('cy',pt.y);
+      step++;
+      if(step>steps){clearInterval(t);pkt.style.opacity='0';res();}
+    },interval);
+  });
+}
+function showPath(id){const e=document.getElementById(id);if(e)e.classList.add('vis');}
+
+// ── LOG / NODE ─────────────────────────────────────────────────
+function addLog(t,msg,cls=''){
+  const e=document.createElement('div');e.className='lentry';
+  e.innerHTML=`<span class="ltime">${t}</span><div class="ldot"></div><span class="lmsg ${cls}">${msg}</span>`;
+  logBody.appendChild(e);setTimeout(()=>e.classList.add('show'),30);logBody.scrollTop=logBody.scrollHeight;
+}
+function ts(){return new Date().toLocaleTimeString('en-IN',{hour12:false});}
+function nState(i,s){document.getElementById(`node-${i}`).className='nbox '+(s||'');document.getElementById(`dot-${i}`).className='ndotb '+(s||'');}
+const BIC={approved:'✓',processing:'↻',timeout:'⏰',reversal:'↩',declined:'✗'};
+function badge(i,cls,txt){const b=document.getElementById(`badge-${i}`);if(!b)return;b.className='sbadge show '+cls;b.innerHTML=`<span>${BIC[cls]||''}</span><span>${txt}</span>`;}
+function sleep(ms){return new Promise(r=>{if(!running){r();return;}tmr=setTimeout(r,ms);});}
+function setPhase(txt,cls){phaseEl.className='phase-label '+cls+' show';phaseEl.textContent=txt;}
+function hidePhase(){phaseEl.classList.remove('show');}
+function setProg(pct,cls){progFill.style.width=pct+'%';if(cls)progFill.className='prog-fill '+cls;}
+
+async function doCountdown(secs){
+  tcountEl.style.opacity='1';
+  for(let i=secs;i>=0;i--){
+    if(!running){tcountEl.style.opacity='0';return;}
+    tcountEl.textContent=i>0?`⏰ Timeout in ${i}s...`:'⏰ TIMEOUT!';
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  await sleep(600);
+  tcountEl.style.opacity='0';
+}
+
+// ── SIMULATION ─────────────────────────────────────────────────
+async function runSim(){
+  const pan=panIn.value.replace(/\s/g,'');
+  if(pan.length<13){alert('Enter a valid PAN (13-16 digits)');return;}
+  running=true;
+  btnStart.classList.add('running');btnLbl.textContent='Stop';btnIco.textContent='■';
+  dlive.style.display='block';
+  setProg(0,'req-phase');
+
+  const scen=scenSel.value;
+  // toutAt = left node index of the segment where timeout fires on response path
+  const toutAt=parseInt(toutSel.value);
+  const txnId='TXN'+Math.random().toString().slice(2,18).toUpperCase();
+  startTime=new Date();
+  const chan=chanSel.value;
+  const netName=curNet?curNet.n:'Unknown';
+  const delay=getDelay();
+
+  // Fill details
+  document.getElementById('dPan').textContent=pan;
+  document.getElementById('dNet').textContent=netName;
+  document.getElementById('dChan').textContent=chan;
+  document.getElementById('dScen').textContent=scen==='timeout'?'Response Timeout + Reversal':'Normal Approval';
+  document.getElementById('dTout').textContent=scen==='timeout'?(TOUT_LABELS[toutAt]||'—'):'N/A';
+  document.getElementById('dTxn').textContent=txnId;
+  document.getElementById('dRev').textContent='—';
+  document.getElementById('dStart').textContent=startTime.toLocaleTimeString('en-IN',{hour12:false});
+  document.getElementById('dStat').className='dval pend';
+  document.getElementById('dStat').textContent='Processing...';
+  document.getElementById('dEnd').textContent='—';document.getElementById('dTotal').textContent='—';
+
+  // ══════════════════════════════════════════════
+  // PHASE 1: REQUEST — ATM/POS (0) → CBS (6)
+  // ══════════════════════════════════════════════
+  setPhase('▶ REQUEST PHASE: ATM → CBS','req');
+  addLog(ts(),`Transaction initiated at ${chan} terminal`,'info');
+  nState(0,'active');await sleep(delay*.3);nState(0,'done');
+
+  const fwdLabels=['','ATM → Acquirer','Acquirer → Acq. Switch','Acq. Switch → Network','Network → Issuer Switch','Issuer Switch → Issuer Bank','Issuer Bank → CBS'];
+  const fwdDone=['','Acquirer received','Acq. Switch received','Network received','Issuer Switch received','Issuer Bank received','CBS authorized ✅'];
+
+  for(let i=1;i<=6;i++){
+    if(!running)return;
+    addLog(ts(),`→ ${fwdLabels[i]}`);
+    nState(i,'active');badge(i,'processing','Processing');
+    animPkt(paths[i-1].fwdPkt,i-1,delay*.65,'fwd');
+    await sleep(delay);
+    if(!running)return;
+    nState(i,'done');badge(i,'approved',i===6?'CBS Auth OK':'Approved');
+    addLog(ts(),'✅ '+fwdDone[i],'ok');
+    setProg(Math.round((i/6)*46),'req-phase');
+    await sleep(delay*.25);
+  }
+
+  if(!running)return;
+  addLog(ts(),'CBS: Authorization APPROVED — sending response back','ok');
+  await sleep(delay*.4);
+
+  // ══════════════════════════════════════════════
+  // PHASE 2: RESPONSE — CBS (6) → ATM/POS (0)
+  // Segments traversed right→left: seg5, seg4, seg3, seg2, seg1, seg0
+  // toutAt = left node index (node that DOESN'T receive the packet due to timeout)
+  // Timeout fires WHEN the packet is IN TRANSIT on segment toutAt
+  //   i.e. when we animate packets[toutAt]
+  // ══════════════════════════════════════════════
+  setPhase('◀ RESPONSE PHASE: CBS → ATM','res');
+  addLog(ts(),'── RESPONSE PHASE STARTED ──','info');
+
+  // Response segments go from seg5 down to seg0
+  // seg index = left node of the segment
+  const resSegOrder=[5,4,3,2,1,0]; // left node index of each segment, traversed in response order
+
+  const resLabels={5:'CBS → Issuer Bank',4:'Issuer Bank → Issuer Switch',3:'Issuer Switch → Network',2:'Network → Acq. Switch',1:'Acq. Switch → Acquirer',0:'Acquirer → ATM/POS'};
+  const resArrived={5:'Issuer Bank received response',4:'Issuer Switch received response',3:'Network received response',2:'Acq. Switch received response',1:'Acquirer received response',0:'ATM/POS: APPROVED!'};
+
+  for(let si=0;si<resSegOrder.length;si++){
+    const seg=resSegOrder[si]; // segment index = left node index
+    if(!running)return;
+
+    addLog(ts(),`← ${resLabels[seg]}`);
+
+    if(scen==='timeout' && seg===toutAt){
+      // ── TIMEOUT ON THIS SEGMENT ──────────────────
+      // Packet is in transit on this segment but doesn't arrive at left node
+      setPhase(`⏰ TIMEOUT @ ${resLabels[seg].split(' → ')[1] || resLabels[seg]}`,'tout');
+
+      // Animate packet starting the journey but timeout fires midway
+      nState(seg,'timeout');badge(seg,'timeout','Timeout!');
+      // Show partial packet movement then stop
+      animPkt(paths[seg].resPkt,seg,delay*.65,'rev'); // starts moving but timeout fires
+      const countSecs=Math.min(5,Math.max(2,Math.round(delay/400)));
+      addLog(ts(),`⏰ Response TIMEOUT on segment: ${resLabels[seg]}`,'warn');
+      await doCountdown(countSecs);
+      if(!running)return;
+
+      // Generate reversal ID
+      const revId='REV'+Math.random().toString().slice(2,14).toUpperCase();
+      document.getElementById('dRev').textContent=revId;
+      setProg(50,'rev-phase');
+      addLog(ts(),`⚠ TIMEOUT! Generating Reversal [${revId}]`,'warn');
+      addLog(ts(),'↩ Reversal → right side (CBS direction)','rev');
+      addLog(ts(),'✗ Decline → left side (ATM direction)','err');
+
+      // The timeout node itself (right node of the segment = seg+1) is where timeout was noticed
+      // Reversal goes FROM seg+1 RIGHTWARD toward CBS (segments seg+1 to 5)
+      // Decline goes FROM seg LEFTWARD toward ATM (segments seg-1 down to 0), plus mark seg node as declined
+
+      // Mark the node that timed out
+      nState(seg+1,'timeout');badge(seg+1,'timeout','Timed Out');
+      // (seg node = left node = destination that never received = gets declined)
+      nState(seg,'declined');badge(seg,'declined','Declined');
+
+      // ── REVERSAL: goes right → CBS (seg+1 forward to seg=5) ──
+      // segments to traverse for reversal (fwd direction): seg+1, seg+2, ... , 5
+      const revSegs=[];
+      for(let s=seg+1;s<=5;s++) revSegs.push(s);
+
+      // ── DECLINE: goes left → ATM (seg-1 backward down to 0) ──
+      // segments to traverse for decline (rev direction): seg-1, seg-2, ... , 0
+      const decSegs=[];
+      for(let s=seg-1;s>=0;s--) decSegs.push(s);
+
+      const maxLen=Math.max(revSegs.length,decSegs.length);
+
+      for(let step=0;step<maxLen;step++){
+        if(!running)return;
+        const rSeg=revSegs[step];
+        const dSeg=decSegs[step];
+        const proms=[];
+
+        if(rSeg!==undefined){
+          const toNode=rSeg+1;
+          proms.push(animPkt(paths[rSeg].revPkt,rSeg,'fwd'?delay*.6:delay*.6,'fwd').then(()=>{
+            showPath(`rev-${rSeg}`);
+            nState(toNode,'reversal');badge(toNode,'reversal','Reversed');
+            addLog(ts(),`↩ Reversal reached ${NNAMES[toNode]}`,'rev');
+          }));
+        }
+        if(dSeg!==undefined){
+          const toNode=dSeg;
+          proms.push(animPkt(paths[dSeg].decPkt,dSeg,delay*.6,'rev').then(()=>{
+            showPath(`dec-${dSeg}`);
+            nState(toNode,'declined');badge(toNode,'declined','Declined');
+            addLog(ts(),`✗ Decline reached ${NNAMES[toNode]}`,'err');
+          }));
+        }
+        await sleep(delay*.7);
+        setProg(Math.min(50+((step+1)/maxLen)*50,100),'rev-phase');
+      }
+
+      if(!running)return;
+      // Mark CBS as reversed and ATM/POS as declined finally
+      nState(6,'reversal');badge(6,'reversal','Auth Reversed');
+      nState(0,'declined');badge(0,'declined','Declined');
+      addLog(ts(),`↩ CBS: Authorization REVERSED [${revId}]`,'rev');
+      addLog(ts(),'✗ ATM/POS: TRANSACTION DECLINED','err');
+      addLog(ts(),'🚫 Timeout Reversal Complete','err');
+      setProg(100,'rev-phase');
+
+      const endTime=new Date();
+      document.getElementById('dStat').className='dval dec';
+      document.getElementById('dStat').textContent='Declined (Timeout)';
+      document.getElementById('dEnd').textContent=endTime.toLocaleTimeString('en-IN',{hour12:false});
+      document.getElementById('dTotal').textContent=Math.round((endTime-startTime)/1000)+' sec';
+      break; // done — timeout handled
+    } else {
+      // Normal response hop
+      animPkt(paths[seg].resPkt,seg,delay*.65,'rev');
+      await sleep(delay);
+      if(!running)return;
+      showPath(`res-${seg}`);
+      const arrivedNode=seg; // left node receives the response packet
+      if(arrivedNode===0){nState(0,'done');}
+      addLog(ts(),'✅ '+resArrived[seg],'ok');
+      setProg(Math.round(46+((si+1)/resSegOrder.length)*54),'res-phase');
+      await sleep(delay*.25);
+
+      // If normal and we just completed the last segment
+      if(scen==='normal' && seg===0){
+        addLog(ts(),'🎉 Transaction APPROVED Successfully!','done');
+        const endTime=new Date();
+        document.getElementById('dStat').className='dval ok';
+        document.getElementById('dStat').textContent='Approved';
+        document.getElementById('dEnd').textContent=endTime.toLocaleTimeString('en-IN',{hour12:false});
+        document.getElementById('dTotal').textContent=Math.round((endTime-startTime)/1000)+' sec';
+      }
+    }
+  }
+
+  hidePhase();
+  running=false;
+  btnStart.classList.remove('running');btnLbl.textContent='Start Simulation';btnIco.textContent='▶';
+  dlive.style.display='none';
+}
+
+// ── RESET ──────────────────────────────────────────────────────
+function resetAll(){
+  running=false;clearTimeout(tmr);
+  tcountEl.style.opacity='0';hidePhase();
+  btnStart.classList.remove('running');btnLbl.textContent='Start Simulation';btnIco.textContent='▶';
+  dlive.style.display='none';setProg(0,'req-phase');
+  for(let i=0;i<=6;i++){
+    document.getElementById(`node-${i}`).className='nbox';
+    document.getElementById(`dot-${i}`).className='ndotb';
+    const b=document.getElementById(`badge-${i}`);
+    if(b){b.className='sbadge';b.innerHTML='⏳ Waiting';}
+  }
+  logBody.innerHTML='';
+  ['dPan','dNet','dChan','dScen','dTout','dTxn','dRev','dEnd','dTotal'].forEach(id=>{document.getElementById(id).textContent='—';});
+  document.getElementById('dStat').className='dval';document.getElementById('dStat').textContent='—';
+  document.getElementById('dStart').textContent='—';
+  setTimeout(buildPaths,60);
+}
+
+btnStart.addEventListener('click',()=>{
+  if(running){
+    running=false;clearTimeout(tmr);tcountEl.style.opacity='0';hidePhase();
+    btnStart.classList.remove('running');btnLbl.textContent='Start Simulation';btnIco.textContent='▶';
+    dlive.style.display='none';addLog(ts(),'⚠️ Stopped by user','warn');
+  } else {resetAll();setTimeout(()=>runSim(),120);}
+});
+btnReset.addEventListener('click',resetAll);
+window.addEventListener('load',()=>{setTimeout(buildPaths,120);updateNet();});
+window.addEventListener('resize',()=>{if(!running)buildPaths();});
+</script>
