@@ -505,34 +505,7 @@ select option{background:#0d1117;color:#fff;}
 .wrap>.footer-credit{animation-delay:0.44s;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── MOBILE VIEW ── */
-body.mobile-view .wrap{padding:0 12px 24px;}
-body.mobile-view header h1{font-size:22px;}
-body.mobile-view .header-actions{gap:6px;}
-body.mobile-view .hbtn{font-size:11px;padding:8px 12px;}
-body.mobile-view .ipanel{flex-direction:column;align-items:stretch;gap:12px;padding:16px;}
-body.mobile-view .fg{width:100%;}
-body.mobile-view .pan-in{width:100%;}
-body.mobile-view select{width:100%;}
-body.mobile-view .sel-chan,body.mobile-view .sel-scen,body.mobile-view .sel-tout{width:100%;}
-body.mobile-view .dnet{width:100%;min-width:unset;}
-body.mobile-view .spd-grp{width:100%;min-width:unset;}
-body.mobile-view .btn-start{width:100%;justify-content:center;margin-left:0;padding:14px 22px;}
-body.mobile-view .fcanvas{padding:20px 6px 80px;overflow-x:auto;}
-body.mobile-view .nodes-row{min-width:520px;}
-body.mobile-view .nlabel{font-size:8px;}
-body.mobile-view .nbox{--ns:50px;font-size:18px;}
-body.mobile-view .sbadge{font-size:8px;padding:3px 7px;min-width:60px;}
-body.mobile-view .bgrid{grid-template-columns:1fr;gap:12px;}
-body.mobile-view .log-body{height:180px;}
-body.mobile-view .dbody{padding:10px 14px;gap:7px;}
-body.mobile-view .drow{font-size:10px;}
-body.mobile-view .dkey{min-width:90px;}
-body.mobile-view .side-panel{order:-1;}
-body.mobile-view .leg-body{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-body.mobile-view .spdbody{padding:10px 14px;}
-body.mobile-view .tcount{font-size:16px;}
-body.mobile-view .phase-label{font-size:9px;bottom:36px;}
+
 </style>
 
 <!-- Aurora & grid -->
@@ -554,7 +527,6 @@ body.mobile-view .phase-label{font-size:9px;bottom:36px;}
     <p class="sub">Real-time ISO 8583 payment routing · Reversal &amp; Timeout simulation</p>
   </div>
   <div class="header-actions">
-    <button class="hbtn" id="btnViewToggle">📱 Mobile View</button>
     <button class="hbtn" id="btnReset">⟳ Reset</button>
   </div>
 </header>
@@ -1024,17 +996,6 @@ function resetAll(){
   document.getElementById('dStart').textContent='—';
   setTimeout(buildPaths,60);
 }
-
-// ── VIEW TOGGLE ─────────────────────────────────────────────────
-const btnViewToggle=document.getElementById('btnViewToggle');
-let mobileViewActive=false;
-btnViewToggle.addEventListener('click',()=>{
-  mobileViewActive=!mobileViewActive;
-  document.body.classList.toggle('mobile-view',mobileViewActive);
-  btnViewToggle.textContent=mobileViewActive?'🖥️ Desktop View':'📱 Mobile View';
-  btnViewToggle.classList.toggle('mobile-active',mobileViewActive);
-  setTimeout(()=>{if(!running)buildPaths();},80);
-});
 
 btnStart.addEventListener('click',()=>{
   if(running){
